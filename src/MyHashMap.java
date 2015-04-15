@@ -50,17 +50,10 @@ public class MyHashMap {
                 return true;
             }
             for (i = hash + 1; i != hash; i = (i + 1) % table.length) {
-//                for (Entry t:table){
-//                    if (t.getKey() == key){
-//                        System.out.printf("Key: %d was used earlier; Value =  %l ",key,value);
-//                    }
-//                }
 
-                if (table[i]==null ) {
+                if (table[i]==null || table[i].getKey() == key) {
                     table[i] = new Entry(key, value);
                     return true;
-                }else if (table[i].getKey() == key){
-                    System.out.println("Used earlier");
                 }
 
             }
@@ -71,7 +64,22 @@ public class MyHashMap {
         }
     }
 
-
+    public Object get(Integer key) {
+        int hash = hash(key,size);
+        try{
+            if (table[hash].getKey() == key && table[hash]!=null) {
+                return table[hash].getValue();
+            }
+            for (int i = hash + 1; i != hash; i = (i + 1) % table.length) {
+                if(table[i].getValue() == key && table[hash]!=null) {
+                    return table[hash].getValue();
+                }
+            }
+            return null;
+        }catch(NullPointerException e){
+            return null;
+        }
+    }
     static class Entry
     {
         final int key;
