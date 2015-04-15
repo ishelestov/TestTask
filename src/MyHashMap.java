@@ -42,6 +42,14 @@ public class MyHashMap {
     }
     public boolean push(Integer key, long value) {
         int hash = key.hashCode();
+        for (Entry entry:table){
+            if (entry!=null){
+                if (entry.getKey()==key){
+                    System.err.printf("Key: %d was used earlier. U must use another key\n", key);
+                    System.exit(1);
+                }
+            }
+        }
 //        int hash = hash(key,size);
         int i=0;
         try{
