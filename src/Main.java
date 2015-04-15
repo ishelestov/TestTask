@@ -10,6 +10,13 @@ public class Main {
         myHashMap.push(2,222);
         myHashMap.push(2,333);
         myHashMap.push(3,444);
+        System.out.println(myHashMap.get(1));
+        System.out.println(myHashMap.get(2));
+        System.out.println(myHashMap.get(3));
+
+
+
+
 
     }
 }

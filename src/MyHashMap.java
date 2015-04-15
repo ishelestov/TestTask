@@ -41,8 +41,8 @@ public class MyHashMap {
         return ((h << 1) - (h << 8)) & (length - 1);
     }
     public boolean push(Integer key, long value) {
-//        int hash = key.hashCode();
-        int hash = hash(key,size);
+        int hash = key.hashCode();
+//        int hash = hash(key,size);
         int i=0;
         try{
             if (table[hash]==null ) {
@@ -65,14 +65,15 @@ public class MyHashMap {
     }
 
     public Object get(Integer key) {
-        int hash = hash(key,size);
+        int hash = key.hashCode();
+//        int hash = hash(key,size);
         try{
             if (table[hash].getKey() == key && table[hash]!=null) {
                 return table[hash].getValue();
             }
             for (int i = hash + 1; i != hash; i = (i + 1) % table.length) {
-                if(table[i].getValue() == key && table[hash]!=null) {
-                    return table[hash].getValue();
+                if(table[i].getKey() == key && table[hash]!=null) {
+                    return table[i].getValue();
                 }
             }
             return null;
