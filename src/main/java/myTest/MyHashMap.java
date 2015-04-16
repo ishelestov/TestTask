@@ -1,120 +1,145 @@
 package myTest;
 
-import java.util.*;
+import myTest.exception.ApplicationException;
+import myTest.exception.KeyNotFoundException;
+import myTest.exception.NoFreeCellsException;
+import myTest.exception.NullKeyException;
 
-/**
- * Created by vanya on 14.04.15.
- */
+
 public class MyHashMap {
+    // For correct working with big data, we should use flexible size, that
+    // change if it necessary
     public static final int SIZE = 10;
+    // Amount of added elements
     private int size;
     private Entry[] table;
+    // Empty constructor, that initialized size and table of Entries(key,value)
     public MyHashMap() {
-        this.size = SIZE;
-        this.table = new Entry[size];
+        this.size = 0;
+        this.table = new Entry[SIZE];
     }
 
-
+    /**
+     * @return amount of added elements
+     */
     public int size() {
         return size;
     }
 
-
-    public Object get(Object key) {
-        return null;
-    }
-
-
-     private static int hash(Object x, int length) {
-        int h = System.identityHashCode(x);
-        // Multiply by -127, and left-shift to use least bit as part of hash
-        return ((h << 1) - (h << 8)) & (length - 1);
-    }
-    public boolean put(Integer key, long value) {
-        int hash = key.hashCode();
-        for (Entry entry:table){
-            if (entry!=null){
-                if (entry.getKey()==key){
-                    System.err.printf("Key: %d was used earlier. U must use another key\n", key);
-                    System.exit(1);
-                }
-            }
+    /**
+     * Adding pair of key(Integer)&value(Long) to our map
+     * @param key for insert element
+     * @return true if inserted element is new, otherwise false
+     */
+    public boolean put(Integer key, long value) throws ApplicationException {
+        if (size == SIZE){
+            throw new NoFreeCellsException("No free cells; Increas the size of table");
         }
-//        int hash = hash(key,size);
-        int i=0;
-        try{
-            if (table[hash]==null ) {
-                table[hash] = new Entry(key, value);
-                return true;
-            }
-            for (i = hash + 1; i != hash; i = (i + 1) % table.length) {
 
-                if (table[i]==null || table[i].getKey() == key) {
-                    table[i] = new Entry(key, value);
-                    return true;
-                }
-
-            }
-            return false;
-        } catch(NullPointerException e) {
-//            table[hash] = new Entry(key, value);
+        int hash;
+        if (key == null){
+            throw new NullKeyException("This map don't support null key");
+        }else {
+            //Take modulo from hashCode of our value to fit in table of this size
+            //Take module hash to support minus values
+            hash = Math.abs(key.hashCode() % SIZE);
+        }
+        int i = 0;
+        //If cell empty - put new pair of key&value
+        if (table[hash]==null ) {
+            table[hash] = new Entry(key, value);
+            size++;
             return true;
         }
+        //If this key is used - change value at this key
+        if (table[hash].getKey()==key){
+            table[hash].setValue(value);
+            size++;
+            return false;
+        }
+        //If cell is not free - found nearest empty cell
+        for (i = hash + 1; i != hash; i++) {
+            //If end of table - start over
+            if (i>=SIZE){
+                i = 0;
+            }
+            //If cell empty - put new pair of key&value
+            if (table[i]==null ) {
+                table[i] = new Entry(key, value);
+                size++;
+                return true;
+            }
+
+        }
+        return false;
     }
 
-    public Object get(Integer key) {
-        int hash = key.hashCode();
-//        int hash = hash(key,size);
-        try{
-            if (table[hash].getKey() == key && table[hash]!=null) {
+    /**
+     * Get Long type value by Integer key
+     * @param key for find element
+     * @return Long type value
+     */
+
+    public Long get(Integer key) throws ApplicationException {
+        // Check for null key
+        if (key == null) {
+            throw new NullKeyException("This map don't support null key");
+        }
+        //Take module hash to support minus values
+        int hash = Math.abs(key.hashCode() % SIZE);
+
+        if (table[hash]!=null){
+            if (table[hash].getKey() == key) {
                 return table[hash].getValue();
             }
-            for (int i = hash + 1; i != hash; i = (i + 1) % table.length) {
-                if(table[i].getKey() == key && table[hash]!=null) {
+            //If you have few values for one hash - function find nearest empty cell
+            for (int i = hash + 1; i != hash; i ++) {
+                //If end of table - start over
+                if (i>=SIZE){
+                    i = 0;
+                }
+                if (table[i]!=null && table[i].getKey().equals(key)){
                     return table[i].getValue();
                 }
+                if (i==hash-1){
+                    throw new KeyNotFoundException("Not found this key;");
+                }
             }
-            return null;
-        }catch(NullPointerException e){
-            return null;
+        }else {
+            throw new KeyNotFoundException("Not found this key;");
         }
+
+        return null;
+
     }
+    /**
+     * Class for make pair of key&value
+     * @param key - int
+     * @param value - long
+     */
+
     static class Entry
     {
         final int key;
-        Object value;
-//        Entry next;
-//        final int hash;
-
-        public Entry(int key, Object value) {
+        long value;
+        public Entry(int key, long value) {
             this.key = key;
             this.value = value;
         }
 
-//        public Entry(int key, int hash, long value, Entry next) {
-//            this.key = key;
-//            this.hash = hash;
-//            this.value = value;
-//            this.next = next;
-//        }
-//        public final int hashCode() {
-//            return Objects.hashCode(key) ^ Objects.hashCode(value);
-//        }
-
-        public Object getKey() {
+        public Integer getKey() {
             return key;
         }
 
-
-        public Object getValue() {
+        public long getValue() {
             return value;
         }
 
-
-        public Object setValue(Object value) {
+        public Long setValue(long value) {
             this.value = value;
             return value;
         }
+
     }
 }
 
